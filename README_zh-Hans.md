@@ -1,10 +1,10 @@
-# 纽约时报 移动团队 Objective-C 规范指南
+# 纽约时报 Objective-C 规范指南
 
 这份规范指南概括了纽约时报 iOS 团队的代码约定。
 
 ## 介绍
 
-关于这个编程语言的所有规范，如果这里没有写到，那就在苹果的文档里： 
+关于这个编程语言的所有规范，如果这里没有写到，那就在苹果的文档里：
 
 * [Objective-C 编程语言][Introduction_1]
 * [Cocoa 基本原理指南][Introduction_2]
@@ -107,7 +107,7 @@ if (!error) return success;
 
 ### 三目运算符
 
-三目运算符，? ，只有当它可以增加代码清晰度或整洁时才使用。单一的条件都应该优先考虑使用。多条件时通常使用 if 语句会更易懂，或者重构为实例变量。
+三目运算符 `? :`，只有当它可以增加代码清晰度或整洁时才使用。单一的条件都应该优先考虑使用。多条件时通常使用 if 语句会更易懂，或者重构为实例变量。
 
 **推荐：**
 ```objc
@@ -154,7 +154,27 @@ if (error) {
 
 变量名应该尽可能命名为描述性的。除了 `for()` 循环外，其他情况都应该避免使用单字母的变量名。
 星号表示指针属于变量，例如：`NSString *text` 不要写成 `NSString* text` 或者 `NSString * text` ，常量除外。
-尽量定义属性来代替直接使用实例变量。除了初始化方法（`init`， `initWithCoder:`，等）， `dealloc` 方法和自定义的 setters 和 getters 内部，应避免直接访问实例变量。更多有关在初始化方法和 dealloc 方法中使用访问器方法的信息，参见[这里][Variables_1]。
+尽量定义属性来代替直接使用实例变量。除了初始化方法（`init`、`initWithCoder:` 等），`dealloc` 方法和自定义的 setters 和 getters 内部，应避免直接访问实例变量。更多有关在初始化方法和 dealloc 方法中使用访问器方法的信息，参见[这里][Variables_1]。
+
+`TODO:`
+
+Variables should be named descriptively, with the variable’s name clearly communicating what the variable _is_ and pertinent information a programmer needs to use that value properly.
+
+**For example:**
+
+* `NSString *title`: It is reasonable to assume a “title” is a string.
+* `NSString *titleHTML`: This indicates a title that may contain HTML which needs parsing for display. _“HTML” is needed for a programmer to use this variable effectively._
+* `NSAttributedString *titleAttributedString`: A title, already formatted for display. _`AttributedString` hints that this value is not just a vanilla title, and adding it could be a reasonable choice depending on context._
+* `NSDate *now`: _No further clarification is needed._
+* `NSDate *lastModifiedDate`: Simply `lastModified` can be ambiguous; depending on context, one could reasonably assume it is one of a few different types.
+* `NSURL *URL` vs. `NSString *URLString`: In situations when a value can reasonably be represented by different classes, it is often useful to disambiguate in the variable’s name.
+* `NSString *releaseDateString`: Another example where a value could be represented by another class, and the name can help disambiguate.
+
+Single letter variable names should be avoided except as simple counter variables in loops.
+
+Asterisks indicating a type is a pointer should be “attached to” the variable name. **For example,** `NSString *text` **not** `NSString* text` or `NSString * text`, except in the case of constants (`NSString * const NYTConstantString`).
+
+Property definitions should be used in place of naked instance variables whenever possible. Direct instance variable access should be avoided except in initializer methods (`init`, `initWithCoder:`, etc…), `dealloc` methods and within custom setters and getters. For more information, see [Apple’s docs on using accessor methods in initializer methods and `dealloc`](https://developer.apple.com/library/mac/documentation/Cocoa/Conceptual/MemoryMgmt/Articles/mmPractical.html#//apple_ref/doc/uid/TP40004447-SW6).
 
 
 **推荐：**
@@ -180,7 +200,7 @@ if (error) {
 #### 变量限定符
 
 当涉及到[在 ARC 中被引入][Variable_Qualifiers_1]变量限定符时，
-限定符 (`__strong`, `__weak`, `__unsafe_unretained`, `__autoreleasing`) 应该位于星号和变量名之间，如：`NSString * __weak text`。
+限定符 (`__strong`、`__weak`、`__unsafe_unretained`、`__autoreleasing`) 应该位于星号和变量名之间，如：`NSString * __weak text`。
 
 [Variable_Qualifiers_1]:(https://developer.apple.com/library/ios/releasenotes/objectivec/rn-transitioningtoarc/Introduction/Introduction.html#//apple_ref/doc/uid/TP40011226-CH1-SW4)
 
@@ -262,7 +282,7 @@ id varnm;
 
 ## 字面量
 
-每当创建 `NSString`， `NSDictionary`， `NSArray`，和 `NSNumber` 类的不可变实例时，都应该使用字面量。要注意 `nil` 值不能传给 `NSArray` 和 `NSDictionary` 字面量，这样做会导致崩溃。
+每当创建 `NSString`、`NSDictionary`、`NSArray` 和 `NSNumber` 类的不可变实例时，都应该使用字面量。要注意 `nil` 值不能传给 `NSArray` 和 `NSDictionary` 字面量，这样做会导致崩溃。
 
 **推荐：**
 
@@ -284,7 +304,7 @@ NSNumber *buildingZIPCode = [NSNumber numberWithInteger:10018];
 
 ## CGRect 函数
 
-当访问一个 `CGRect` 的 `x`， `y`， `width`， `height` 时，应该使用[`CGGeometry` 函数][CGRect-Functions_1]代替直接访问结构体成员。苹果的 `CGGeometry` 参考中说到：
+当访问一个 `CGRect` 的 `x`、`y`、`width`、`height` 时，应该使用[`CGGeometry` 函数][CGRect-Functions_1]代替直接访问结构体成员。苹果的 `CGGeometry` 参考中说到：
 
 > All functions described in this reference that take CGRect data structures as inputs implicitly standardize those rectangles before calculating their results. For this reason, your applications should avoid directly reading and writing the data stored in the CGRect data structure. Instead, use the functions described here to manipulate rectangles and to retrieve their characteristics.
 
@@ -314,7 +334,7 @@ CGFloat height = frame.size.height;
 
 ## 常量
 
-常量首选内联字符串字面量或数字，因为常量可以轻易重用并且可以快速改变而不需要查找和替换。常量应该声明为 `static` 常量而不是 `#define` ，除非非常明确地要当做宏来使用。
+常量首选内联字符串字面量或数字，因为常量可以轻易重用并且可以快速改变而不需要查找和替换。常量应该声明为 `static` 常量而不是 `#define`，除非非常明确地要当做宏来使用。
 
 **推荐：**
 
@@ -383,8 +403,8 @@ typedef NS_OPTIONS(NSUInteger, NYTAdCategory) {
 
 **推荐：**
 
-* `RefreshBarButtonItem` / `RefreshBarButtonItem@2x` 和 `RefreshBarButtonItemSelected` / `RefreshBarButtonItemSelected@2x`
-* `ArticleNavigationBarWhite` / `ArticleNavigationBarWhite@2x` 和 `ArticleNavigationBarBlackSelected` / `ArticleNavigationBarBlackSelected@2x`.
+* `RefreshBarButtonItem` / `RefreshBarButtonItem@2x` & `RefreshBarButtonItemSelected` / `RefreshBarButtonItemSelected@2x`
+* `ArticleNavigationBarWhite` / `ArticleNavigationBarWhite@2x` & `ArticleNavigationBarBlackSelected` / `ArticleNavigationBarBlackSelected@2x`
 
 图片目录中被用于类似目的的图片应归入各自的组中。
 
@@ -411,7 +431,7 @@ if (someObject == nil) {
 
 -----
 
-**对于 `BOOL` 来说, 这有两种用法:**
+**对于 `BOOL` 来说，这有两种用法:**
 
 ```objc
 if (isAwesome)
@@ -433,7 +453,7 @@ if (isAwesome == YES) // 永远别这么做
 @property (assign, getter=isEditable) BOOL editable;
 ```
 
-内容和例子来自 [Cocoa 命名指南][Booleans_1] 。
+内容和例子来自 [Cocoa 命名指南][Booleans_1]。
 
 [Booleans_1]:https://developer.apple.com/library/mac/#documentation/Cocoa/Conceptual/CodingGuidelines/Articles/NamingIvarsAndTypes.html#//apple_ref/doc/uid/20001284-BAJGIIJE
 
@@ -458,12 +478,12 @@ if (isAwesome == YES) // 永远别这么做
 
 [Singletons_1]:http://cocoasamurai.blogspot.com/2011/04/singletons-your-doing-them-wrong.html
 
-## 导入   
+## 导入
 
-如果有一个以上的 import 语句，就对这些语句进行[分组][Import_1]。每个分组的注释是可选的。   
-注：对于模块使用 [@import][Import_2] 语法。   
+如果有一个以上的 import 语句，就对这些语句进行[分组][Import_1]。每个分组的注释是可选的。
+注：对于模块使用 [@import][Import_2] 语法。
 
-```objc   
+```objc
 // Frameworks
 @import QuartzCore;
 
@@ -473,18 +493,18 @@ if (isAwesome == YES) // 永远别这么做
 // Views
 #import "NYTButton.h"
 #import "NYTUserView.h"
-```   
+```
 
 
-[Import_1]: http://ashfurrow.com/blog/structuring-modern-objective-c
-[Import_2]: http://clang.llvm.org/docs/Modules.html#using-modules
+[Import_1]:http://ashfurrow.com/blog/structuring-modern-objective-c
+[Import_2]:http://clang.llvm.org/docs/Modules.html#using-modules
 
 ## Xcode 工程
 
 为了避免文件杂乱，物理文件应该保持和 Xcode 项目文件同步。Xcode 创建的任何组（group）都必须在文件系统有相应的映射。为了更清晰，代码不仅应该按照类型进行分组，也可以根据功能进行分组。
 
 
-如果可以的话，尽可能一直打开 target Build Settings 中 "Treat Warnings as Errors" 以及一些[额外的警告][Xcode-project_1]。如果你需要忽略指定的警告,使用 [Clang 的编译特性][Xcode-project_2] 。
+如果可以的话，尽可能一直打开 target Build Settings 中 "Treat Warnings as Errors" 以及一些[额外的警告][Xcode-project_1]。如果你需要忽略指定的警告，使用 [Clang 的编译特性][Xcode-project_2]。
 
 
 [Xcode-project_1]:http://boredzo.org/blog/archives/2009-11-07/warnings
