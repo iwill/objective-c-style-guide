@@ -429,8 +429,6 @@ if (someObject == nil) {
 }
 ```
 
------
-
 **对于 `BOOL` 来说，这有两种用法:**
 
 ```objc
@@ -444,8 +442,6 @@ if (![someObject boolValue])
 if ([someObject boolValue] == NO)
 if (isAwesome == YES) // 永远别这么做
 ```
-
------
 
 如果一个 `BOOL` 属性名称是一个形容词，属性可以省略 “is” 前缀，但为 get 访问器指定一个惯用的名字，例如：
 
